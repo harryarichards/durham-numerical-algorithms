@@ -1,0 +1,108 @@
+\documentclass[12pt, a4paper]{article}
+
+%Template Values
+\newcommand{\course}{Step 5: Parallelisation Concept}
+\newcommand{\lecturer}{Anonymous Marking Code: Z0973527}
+
+%The Preamble - Commands that affect the entire document.
+
+%Margins
+\usepackage{amssymb, amsmath, amsthm}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage[top=1in, bottom=1in, left=0.6in, right=0.6in]{geometry}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{bbm}
+\usepackage{bbold}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage[export]{adjustbox}
+\usepackage{caption}
+\usepackage{textcmds}
+\usepackage{pgfplots}
+\usepackage{ltablex}
+
+\usepackage{color}
+\usepackage[urlcolor = blue]{hyperref}
+\hypersetup{citecolor=blue}
+\hypersetup{
+	colorlinks=true,
+	linktoc=all,
+	linkcolor=black
+}
+
+%For chapter pages
+\fancypagestyle{plain}{
+	\fancyhead{}
+	\fancyfoot[CO,CE]{Page \thepage}
+	\renewcommand{\headrulewidth}{0.5pt} % Header rule's width
+	\renewcommand{\footrulewidth}{0.5pt} % Header rule's width
+}
+
+\renewcommand\sectionmark[1]{\markboth{#1}{}}
+
+\fancypagestyle{MainStyle}{
+	%No Evens and Odds in report - only book
+	\fancyfoot[LE]{}
+	\fancyfoot[LO]{}
+	\fancyfoot[RE]{}
+	\fancyfoot[RO]{}
+	\fancyfoot[CE]{Page \thepage}
+	\fancyfoot[CO]{Page \thepage}
+	\fancyhead[LE]{\course}
+	\fancyhead[LO]{\course}
+	\fancyhead[RE]{\lecturer}
+	\fancyhead[RO]{\lecturer}
+	\fancyhead[CE]{}
+	\fancyhead[CO]{}
+	\renewcommand{\headrulewidth}{0.4pt} % Header rule's width
+	\renewcommand{\footrulewidth}{0.4pt} % Header rule's width
+
+}
+
+\begin{document}
+\renewcommand\refname{Bibliography}
+\pagestyle{MainStyle}
+%Top matter - Title, Author, Date (Today by default)
+
+%Sectioning
+%Sections: Part (Numerals), Chapter, Section, Subsection, Subsubsection, Paragraph, Subparagraph. Also Appendicies (Letters)
+
+%To change normal and contents title use \section[Contents heading]{Normal heading}
+
+%By default Part Chapter and Section get numbers as x=3 in \setcounter{secnumdepth}{x}. This can be changed between 1-7. The numbering depth that occurs in the contents can be changed using \setcounter{tocdepth}{x}.
+%Unnumberered sections use \section*{title} syntax
+
+%SPECIAL SECTIONS
+
+%\renewcommand{\contentsname}{NEW NAME}
+%\listoffigures
+%\renewcommand{\listfigurename}{NEW NAME}
+%\listoftables
+%\renewcommand{\listtablename}{NEW NAME}
+
+%Levels of sections can be changed as such \renewcommand*{\toclevel@chapter}{-1} % Put chapter depth at the same level as \part.
+
+\begin{wrapfigure}{h}{0.3\textwidth}
+\includegraphics[width=0.3\textwidth, clip]{"images/DAG".png}
+\caption{Simplified DAG for the $updateBody()$ function. Here an arrow indicates a dependency.}
+\label{fig:one}
+\end{wrapfigure}
+\hspace{\parindent} When considering how well suited our earlier (Step $1$) implementation is to parallelisation we will first consider a basic DAG. Figure \ref{fig:one} vaguely describes the dependencies in one iteration of the for loop. The $updateBody()$ function simply consists of a nested for loop.
+\par In Figure \ref{fig:one} we see that the inner loop (nested loop) calculates the distance between each pair of particles. The distance is in turn used to calculate the forces acting on each particle. Following this, the forces are utilised to compute the velocity of each particle, which is use in order to obtain each particles new position/coordinates. The dependencies within the function are clear.
+\par Parallelising either the inner (nested) loop (which calculates distances and forces) or the outer loop (which updates velocity and coordinates) alone is relatively simple, as the order that the iterations are performed does not matter in either case. The inner loop depends on the masses of each particle - which remain constant throughout the simulation. It also depends on the distance between particles, which naturally is dependent on the position of each particle (which is calculated in the outer loop). Provided positions (or coordinates) are not updated whilst the inner loop is executed then no issues will arise. Similarly, when parallelising the outer loop alone it is simple as the provided the inner loop still executes sequentially, the forces calculated will be accurate for each calculation of velocity and consequently position.
+ \begin{wrapfigure}{h}{0.4\textwidth}
+\includegraphics[width=0.4\textwidth, clip]{"images/OMP".png}
+\caption{Our proposed OMP solution.}
+\label{fig:two}
+\end{wrapfigure}
+ \par We wish to parallelise as much of our original code as possible, however it is important that we do not introduce any error when doing so. Figure \ref{fig:two} displays a vague outline of the proposed parallelisation in OMP. This way we can parallelise the calculation of distances and forces, and once each of the forces have been calculated we can update the velocity and position based on the forces that have just been calculated. As any dependency will already have been calculated the update velocity and position can also be done in parallel.  The parallelisation paradigm that we will be adhering to is SPMD. This is because our algorithm is independent of the data it is working on, as the $updateBody()$ function has no selection or opportunity to vary at any point. Each thread manage its own work and any thread-specific behaviour, so no scheduling is required.
+ \par When predicting the efficiency of the parallelisation it will depend significantly on the number of particles in the simulation, as this is what is being iterated over in the for loops that we are parallelising. The sequential code involves $n$ iterations of the outer loop and $\frac{n(n-1)}{2}$ iteration of the inner (nested) loop. Assuming that it takes time $t$ to execute the inner loop and the remainder of the outer loop (as they're likely to be very similar). We can approximate the run-time of our sequential code as $T_{sequential} = \frac{n(n-1)}{2}t + nt = \frac{n^2 +n}{2}t$. We can approximate the run-time of our proposed parallel program as $T_{parallel} = t + \frac{n-1}{n}t + t \approx 3t$ (the time to run each loop once). From this we observe a speedup of $S(n) = \frac{n^2+n}{6}$. The number of processors we would require to do this would be roughly $p = \frac{(n-1)(n)}{2}$, giving us a theoretical efficiency of $E(p) = \frac{n^2+n}{3(n^2-n)}$. These very approximate calculations suggest that as you increase the number of processors/threads the speedup will increase (which is obviously to be expected) and the efficiency will decrease. The efficiency and for $12$ processors (fix $n=12$) are $E(p) \approx 0.3939 \equiv 39.39\%$ and $S(p) =26$.
+ 
+
+
+\end{document}

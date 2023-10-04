@@ -1,0 +1,146 @@
+\documentclass[12pt, a4paper]{article}
+
+%Template Values
+\newcommand{\course}{Step 4: Adaptive time stepping}
+\newcommand{\lecturer}{Anonymous Marking Code: Z0973527}
+
+%The Preamble - Commands that affect the entire document.
+
+%Margins
+\usepackage{amssymb, amsmath, amsthm}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage[top=1in, bottom=1in, left=0.6in, right=0.6in]{geometry}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{bbm}
+\usepackage{bbold}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage[export]{adjustbox}
+\usepackage{caption}
+\usepackage{textcmds}
+\usepackage{pgfplots}
+\usepackage{ltablex}
+
+\usepackage{color}
+\usepackage[urlcolor = blue]{hyperref}
+\hypersetup{citecolor=blue}
+\hypersetup{
+	colorlinks=true,
+	linktoc=all,
+	linkcolor=black
+}
+
+%For chapter pages
+\fancypagestyle{plain}{
+	\fancyhead{}
+	\fancyfoot[CO,CE]{Page \thepage}
+	\renewcommand{\headrulewidth}{0.5pt} % Header rule's width
+	\renewcommand{\footrulewidth}{0.5pt} % Header rule's width
+}
+
+\renewcommand\sectionmark[1]{\markboth{#1}{}}
+
+\fancypagestyle{MainStyle}{
+	%No Evens and Odds in report - only book
+	\fancyfoot[LE]{}
+	\fancyfoot[LO]{}
+	\fancyfoot[RE]{}
+	\fancyfoot[RO]{}
+	\fancyfoot[CE]{Page \thepage}
+	\fancyfoot[CO]{Page \thepage}
+	\fancyhead[LE]{\course}
+	\fancyhead[LO]{\course}
+	\fancyhead[RE]{\lecturer}
+	\fancyhead[RO]{\lecturer}
+	\fancyhead[CE]{}
+	\fancyhead[CO]{}
+	\renewcommand{\headrulewidth}{0.4pt} % Header rule's width
+	\renewcommand{\footrulewidth}{0.4pt} % Header rule's width
+
+}
+
+\begin{document}
+\renewcommand\refname{Bibliography}
+\pagestyle{MainStyle}
+%Top matter - Title, Author, Date (Today by default)
+
+%Sectioning
+%Sections: Part (Numerals), Chapter, Section, Subsection, Subsubsection, Paragraph, Subparagraph. Also Appendicies (Letters)
+
+%To change normal and contents title use \section[Contents heading]{Normal heading}
+
+%By default Part Chapter and Section get numbers as x=3 in \setcounter{secnumdepth}{x}. This can be changed between 1-7. The numbering depth that occurs in the contents can be changed using \setcounter{tocdepth}{x}.
+%Unnumberered sections use \section*{title} syntax
+
+%SPECIAL SECTIONS
+
+%\renewcommand{\contentsname}{NEW NAME}
+%\listoffigures
+%\renewcommand{\listfigurename}{NEW NAME}
+%\listoftables
+%\renewcommand{\listtablename}{NEW NAME}
+
+%Levels of sections can be changed as such \renewcommand*{\toclevel@chapter}{-1} % Put chapter depth at the same level as \part.
+
+\begin{longtable}{|p{3cm}|p{7cm}|p{4.5cm}|}
+\caption{Time-step and distances at end time.}\\
+\hline
+\label{tab:one}
+\bf{Time-step} & \bf{Recorded number  of time steps} &\bf{Time steps required}\\ \hline
+$10^{-1}$ & $10^5$& $10^5$\\ \hline
+$10^{-2}$ & $10^6$&$10^6$\\ \hline
+$10^{-3}$ & $10^7$&$10^7$\\ \hline
+$10^{-4}$ & $1.00000001 \cdot 10^{8}$ & $10^8$\\ \hline
+$10^{-5}$ & $1.000000012 \cdot 10^{9}$ & $10^9$\\ \hline
+$10^{-6}$ & $1.410063536 \cdot 10^{9}$ & $10^{10}$\\ \hline
+$10^{-7}$ & $1.215698652 \cdot 10^{9}$ & $10^{11}$\\ \hline
+$10^{-8}$ & $-7.34397424 \cdot 10^{8}$ & $10^{12}$\\ \hline
+\textbf{adaptive} & $3.69650276\cdot 10^8$ & $3.69650276 \cdot 10^8$\\ \hline
+\end{longtable}
+Table \ref{tab:one} displays the number of time steps required by 8 simulations for 8 different fixed time stepping schemes, it also presents the number of time steps required by an adaptive time stepping scheme. We see in Table \ref{tab:one} that for time steps $\Delta t \in \{10^{-1}, 10^{-2}, 10^{-3}\}$ the recorded number of time steps is equal to $\frac{final \, time}{\Delta t} = \frac{10^4}{\Delta t}$. However, due to the introduction of error when incrementing the recorded time step and this propagating throughout our simulations the recorded number of time steps for smaller time steps are not what they should be.\\ We see our adaptive time stepping scheme requires a relatively similar number of time steps to the fixed time step $10^{-4}$.\\
+\begin{wrapfigure}{h}{0.65\textwidth}
+\includegraphics[width=0.7\textwidth, clip]{"images/accuracy".png}
+\caption{The distance between the particles for $0 \leq time \leq 10000$, for $8$ simulations with different fixed time steps, as well as one simulation using an adaptive time step.}
+\label{fig:one}
+\end{wrapfigure}
+\par Clearly, we can see in Table \ref{tab:one} that the number of time steps required increases as we decrease the time step value. We expect that performing more time steps leads to a more accurate and stable representation of the molecules behaviour. Here this is the case, with time steps $10^{-1}$ and $10^{-2}$ producing very inaccurate results. All of the other results yielded are relatively similar and are numerically stable. The adaptive time stepping scheme makes use of smaller time steps as the two particles get closer together and thus it remains stable, unlike time steps $10^{-1}$ and $10^{-2}$. Through altering its time step size it is able to remain stable whilst requiring a relatively low number of time steps. However,  the fixed time step schemes with $\Delta t \in \{10^{-3}, \dots 10^{-8}\}$ seemingly yield solutions that are closer to the analytical solution. This is because whilst the adaptive time stepping scheme makes use of small time steps when necessary (in order to remain stable), it does not do so throughout the entire simulation and the use of a larger time step at times causes it to lose some accuracy. This is a balance that is difficult to strike in our scheme, the time step must be both large enough that it reduces the number of time steps required andd small enough to provide an accurate and stable solution.
+
+\begin{figure}[!htb]
+    \centering
+    \begin{minipage}{.55\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{"images/3body".png}
+        \caption{3 body simulation.}
+        \label{fig:two}
+    \end{minipage}%
+    \begin{minipage}{0.55\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{"images/5body".png}
+        \caption{5 body simulation.}
+        \label{fig:three}
+    \end{minipage}
+\end{figure}
+
+\par We now investigate the adaptive time stepping scheme with more than two particles. We will compare it's performance to simulations with fixed-time time steps $\Delta t \in \{10^{-3}, 10^{-4}, 10^{-5}\}$. In both Figures \ref{fig:two} and \ref{fig:three} we see that the stability of the results yielded by the adaptive time stepping scheme is very similar to the fixed time step $10^{-5}$, and more stable than the other time steps. This suggests that as we scale the problem, the stability and accuracy of our adaptive time stepping scheme remains similar and is not hindered by the larger number of particles. The fixed time stepping schemes with time steps $10^{-3}$ and $10^{-4}$ do not scale so well and the scheme with  time step $10^{-3}$ quickly yields unstable results.
+\par However, if we refer to Table \ref{tab:two} we see that whilst the accuracy of the adaptive time stepping is not hindered, the number of time steps required is massively impacted. This is likely because the minimum distance between particles is much lower for longer periods of time, as a result the adaptive time stepping will be forced into using it's minimum time step size for a longer period in order to prevent collisions and hence it requires more time steps. From experimentation with the number of bodies and parameters provided, I believe the adaptive time stepping will maintain it's stability as we scale the problem. However, it is also expected that the number of time steps required will vastly increase - but this is at least bounded by $\frac{final \, time}{minimum \, \Delta t}$, in our case $\frac{1e4}{1e-7} = 1e11$.
+
+\begin{longtable}{|p{3cm}|p{7.5cm}|p{7.5cm}|}
+\caption{Time-step and distances at end time for multi-body setups.}\\
+\hline
+\label{tab:two}
+\bf{Time-step} & \bf{Time steps required (3-body setup)} &\bf{Time steps required (5-body setup)}\\ \hline
+
+$10^{-3}$ & $10^7$&$10^7$\\ \hline
+$10^{-4}$ & $10^8$ & $10^8$\\ \hline
+$10^{-5}$ & $10^9$ & $10^9$\\ \hline
+\textbf{adaptive} & $5.00146526 \cdot 10^8$ & $9.46232001 \cdot 10^8$\\ \hline
+\end{longtable}
+
+
+
+\end{document}

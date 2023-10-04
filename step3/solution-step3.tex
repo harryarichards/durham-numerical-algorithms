@@ -1,0 +1,128 @@
+\documentclass[12pt, a4paper]{article}
+
+%Template Values
+\newcommand{\course}{Step 3: Lennard-Jones experiments}
+\newcommand{\lecturer}{Anonymous Marking Code: Z0973527}
+
+%The Preamble - Commands that affect the entire document.
+
+%Margins
+\usepackage{amssymb, amsmath, amsthm}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage[top=1in, bottom=1in, left=0.6in, right=0.6in]{geometry}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{bbm}
+\usepackage{bbold}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage[export]{adjustbox}
+\usepackage{caption}
+\usepackage{textcmds}
+\usepackage{pgfplots}
+\usepackage{ltablex}
+
+\usepackage{color}
+\usepackage[urlcolor = blue]{hyperref}
+\hypersetup{citecolor=blue}
+\hypersetup{
+	colorlinks=true,
+	linktoc=all,
+	linkcolor=black
+}
+
+%For chapter pages
+\fancypagestyle{plain}{
+	\fancyhead{}
+	\fancyfoot[CO,CE]{Page \thepage}
+	\renewcommand{\headrulewidth}{0.5pt} % Header rule's width
+	\renewcommand{\footrulewidth}{0.5pt} % Header rule's width
+}
+
+\renewcommand\sectionmark[1]{\markboth{#1}{}}
+
+\fancypagestyle{MainStyle}{
+	%No Evens and Odds in report - only book
+	\fancyfoot[LE]{}
+	\fancyfoot[LO]{}
+	\fancyfoot[RE]{}
+	\fancyfoot[RO]{}
+	\fancyfoot[CE]{Page \thepage}
+	\fancyfoot[CO]{Page \thepage}
+	\fancyhead[LE]{\course}
+	\fancyhead[LO]{\course}
+	\fancyhead[RE]{\lecturer}
+	\fancyhead[RO]{\lecturer}
+	\fancyhead[CE]{}
+	\fancyhead[CO]{}
+	\renewcommand{\headrulewidth}{0.4pt} % Header rule's width
+	\renewcommand{\footrulewidth}{0.4pt} % Header rule's width
+
+}
+
+\begin{document}
+\renewcommand\refname{Bibliography}
+\pagestyle{MainStyle}
+%Top matter - Title, Author, Date (Today by default)
+
+%Sectioning
+%Sections: Part (Numerals), Chapter, Section, Subsection, Subsubsection, Paragraph, Subparagraph. Also Appendicies (Letters)
+
+%To change normal and contents title use \section[Contents heading]{Normal heading}
+
+%By default Part Chapter and Section get numbers as x=3 in \setcounter{secnumdepth}{x}. This can be changed between 1-7. The numbering depth that occurs in the contents can be changed using \setcounter{tocdepth}{x}.
+%Unnumberered sections use \section*{title} syntax
+
+%SPECIAL SECTIONS
+
+%\renewcommand{\contentsname}{NEW NAME}
+%\listoffigures
+%\renewcommand{\listfigurename}{NEW NAME}
+%\listoftables
+%\renewcommand{\listtablename}{NEW NAME}
+
+%Levels of sections can be changed as such \renewcommand*{\toclevel@chapter}{-1} % Put chapter depth at the same level as \part.
+
+
+\begin{wrapfigure}{h}{0.4\textwidth}
+\includegraphics[width=0.4\textwidth, clip]{"images/Distance-Time".png}
+\caption{The distance between the particles for $0 \leq time \leq 10000$, for $8$ simulations with different time steps.}
+\label{fig:one}
+\end{wrapfigure}
+\hspace{\parindent} Figure \ref{fig:one} presents the results of $8$ different simulations of our Lennard-Jones implementation, for time steps $\Delta t \in \{ 10^{-1}, 10^{-2}, 10^{-3}, 10^{-4}, 10^{-5}, 10^{-6}, 10^{-7}, 10^{-8}\}$. 
+\par For all $8$ simulations we see that for $0\leq time \leq 4100$ all simulations produce near-identical results (hence only one line is visible on the graph) and the two molecules gradually get closer to each other. At $time=4100$ the molecules reach the minimum distance ($\approx 10^{-9}$), and as a result of our force model the molecules begin to get further away from each other. We see that in the simulation with time step $10^{-1}$ the two molecules begin to diverge away from one another. This is a result of the large time step causing the spike in force to have more of an impact on the simulation. We see similar behaviour in the simulations with $10^{-2}$ and $10^{-3}$, however due to the smaller time steps thid is on a much smaller scale. We see that time steps $\{10^{-4}, 10^{-5}, 10^{-6}, 10^{-7}, 10^{-8}\}$ produce very similar distances throughout the entire simulation, these time stepping schemes are numerically stable throughout the entire simulation. Figure \ref{fig:one} exhibits the property of stiffness in our algorithm and shows that our method for solving the equation is only numerically stable for sufficiently small time steps (i.e. $\Delta t\leq 10^{-3}$). We see in both Figure \ref{fig:one} and Figure \ref{fig:two} that unless the step size is sufficiently small $\Delta t \approx 10^{-4}$ the distances yielded by the algorithm vary a lot, and small changes can make a huge impact on the overall result for time stepping schemes with larger time steps. \begin{wrapfigure}{h}{0.35\textwidth}
+\includegraphics[width=0.35\textwidth, clip]{"images/Timestep-Distance".png}
+\caption{The end time distance of each of the simulations.}
+\label{fig:two}
+\end{wrapfigure}
+
+\par Figure \ref{fig:two} and Figure \ref{fig:three} presents the end time distances of the simulation for each time step in a more clear manner. From this it is clear to see that as we decrease the time step the end-time distance converges to a value, this is illustrated by (approximately) constant line from time step $10^{-4}$ onwards. Should the value it converges to be the analytical solution then our scheme is consistent. If we take the formula $\lvert F^{(i+1)} - F^{(i)} \rvert \leq C \lvert F^{(i)} - F^{(i-1)} \rvert^p$ with $p=1$ fixed and compute $C$, we see that for each set of $F^{(i-1)}, F^{(i)}$ and $F^{(i+1)}$ we have $C \approx 0.1$. This is the experimental method of determining the order and thus it's clear that the solution converges linearly (with order $1$) - otherwise stated with order $1$.\\
+
+
+\begin{figure}
+\begin{center}
+\begin{tabular}{ |c|c|c|c|c|c| } 
+\hline
+ \bf{Time-step} & $10^{-1}$  & $10^{-2}$ & $10^{-3}$ & $10^{-4}$ & $10^{-5}$  \\
+\hline
+\bf{Distance at end time}  & $3.03319 \cdot 10^{-8}$ & $1.13779 \cdot 10^{-8}$ & $7.3358 \cdot 10^{-9}$ & $6.79042 \cdot 10^{-9}$ & $6.7332 \cdot 10^{-9}$   \\ 
+\hline
+\end{tabular}\\
+\begin{tabular}{ |c|c|c| } 
+\hline
+$10^{-6}$ & $10^{-7}$ & $10^{-8}$   \\
+\hline
+$6.7274 \cdot 10^{-9}$ & $6.7269 \cdot 10^{-9}$ & $6.7269 \cdot 10^{-9}$ \\ 
+\hline
+\end{tabular}
+\end{center}
+
+\caption{Time-step and distances at end time.}
+\label{fig:three}
+\end{figure}
+
+\end{document}

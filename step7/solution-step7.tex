@@ -1,0 +1,103 @@
+\documentclass[12pt, a4paper]{article}
+
+%Template Values
+\newcommand{\course}{Step 5: Parallelisation Concept}
+\newcommand{\lecturer}{Anonymous Marking Code: Z0973527}
+
+%The Preamble - Commands that affect the entire document.
+
+%Margins
+\usepackage{amssymb, amsmath, amsthm}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage[top=1in, bottom=1in, left=0.6in, right=0.6in]{geometry}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{bbm}
+\usepackage{bbold}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage[export]{adjustbox}
+\usepackage{caption}
+\usepackage{textcmds}
+\usepackage{pgfplots}
+\usepackage{ltablex}
+
+\usepackage{color}
+\usepackage[urlcolor = blue]{hyperref}
+\hypersetup{citecolor=blue}
+\hypersetup{
+	colorlinks=true,
+	linktoc=all,
+	linkcolor=black
+}
+
+%For chapter pages
+\fancypagestyle{plain}{
+	\fancyhead{}
+	\fancyfoot[CO,CE]{Page \thepage}
+	\renewcommand{\headrulewidth}{0.5pt} % Header rule's width
+	\renewcommand{\footrulewidth}{0.5pt} % Header rule's width
+}
+
+\renewcommand\sectionmark[1]{\markboth{#1}{}}
+
+\fancypagestyle{MainStyle}{
+	%No Evens and Odds in report - only book
+	\fancyfoot[LE]{}
+	\fancyfoot[LO]{}
+	\fancyfoot[RE]{}
+	\fancyfoot[RO]{}
+	\fancyfoot[CE]{Page \thepage}
+	\fancyfoot[CO]{Page \thepage}
+	\fancyhead[LE]{\course}
+	\fancyhead[LO]{\course}
+	\fancyhead[RE]{\lecturer}
+	\fancyhead[RO]{\lecturer}
+	\fancyhead[CE]{}
+	\fancyhead[CO]{}
+	\renewcommand{\headrulewidth}{0.4pt} % Header rule's width
+	\renewcommand{\footrulewidth}{0.4pt} % Header rule's width
+
+}
+
+\begin{document}
+\renewcommand\refname{Bibliography}
+\pagestyle{MainStyle}
+%Top matter - Title, Author, Date (Today by default)
+
+%Sectioning
+%Sections: Part (Numerals), Chapter, Section, Subsection, Subsubsection, Paragraph, Subparagraph. Also Appendicies (Letters)
+
+%To change normal and contents title use \section[Contents heading]{Normal heading}
+
+%By default Part Chapter and Section get numbers as x=3 in \setcounter{secnumdepth}{x}. This can be changed between 1-7. The numbering depth that occurs in the contents can be changed using \setcounter{tocdepth}{x}.
+%Unnumberered sections use \section*{title} syntax
+
+%SPECIAL SECTIONS
+
+%\renewcommand{\contentsname}{NEW NAME}
+%\listoffigures
+%\renewcommand{\listfigurename}{NEW NAME}
+%\listoftables
+%\renewcommand{\listtablename}{NEW NAME}
+
+%Levels of sections can be changed as such \renewcommand*{\toclevel@chapter}{-1} % Put chapter depth at the same level as \part.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.6\textwidth, clip]{"images/speedup".png}
+\caption{The speedup compared with the number of bodies in the simulation.}
+\label{fig:one}
+\end{figure}
+\par If we analyse Figure \ref{fig:one}, we clearly see that the speedup of the parallelised implementation improves as we increase the  number of bodies in the simulation. However, for all of the simulations except one (where $\text{number of bodies} = 6000$) the speedup is less than 1 ($S(p) < 1$), meaning the sequential code is running more quickly than the paralellised program. The reasoning behind this is that in our implementation the time spent performing the operations involved in each iteration is very small, and when we parallelise the loop containing these iterations we introduce a significant overhead due to the spawning and management of each thread. This overhead does not significantly increase when increasing the number of bodies, and thus as we scale the problem it has less of an impact - hence the positive gradient of the graph. Due to this overhead the parallel programming is only likely to increase speedup (and efficiency) when each iteration requires a sufficient amount of processor time or in our case when there are a sufficient number of iterations that need to be performed.
+
+\par All of the speedups on the graph were acquired with ($p=12$) processors. The best efficiency we achieved was clearly when $\text{number of bodies} = 6000$ and this was $E(p) \approx \frac{1.02}{12} = 0.085 \equiv 8.5\%$. This is a long shot from the $E(p) \approx 0.3939 \equiv 39.39\%$ (and speedup $S(p) =26$) that was predicted in step 5, I am sure that if we involved more bodies then the speedup would improve and the efficiency would get closer to the predicted value. However, our method when predicting the speedup/efficiency ignores any overhead and thus our it is expected that the results our real-life simulations yield will fall short of the the theoretical predictions.
+ 
+ \par Should we increase the scale of the problem even further I believe the performance of the parallel program would continue to improve to an extent, and it would clearly run more quickly than the sequential program (as it already does marginally for $6000$ bodies). However, from the decrease in gradient of the curve in Figure \ref{fig:one} I believe that there would come a point when the speed up approache a constant value i.e. $S(p) = k = \, constant$. At this point the parallelised program would still outperform the sequential program however I doubt that increasing the problem size would have any significant effect on the speedup. As a result, I don't believe the parallelisation would ever reach the efficiency or speedup that was predicted in the earlier step, but again due to the limitations of the prediction this is to be expected. 
+
+
+\end{document}
